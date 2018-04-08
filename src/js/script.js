@@ -25,7 +25,7 @@ const params = function() {
   }
 
   return vars
-}
+}()
 
 function loadJSONP(path, callbackName) {
   const
