@@ -1,0 +1,105 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>GitHub Issue Widget</title><script>'use strict'
+
+const params = function() {
+  let vars = [], hash
+  const hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&')
+
+  for (let i = 0, length = hashes.length; i < length; i++) {
+    hash = hashes[i].split('=')
+    vars.push(hash[0])
+    // support param without value
+    vars[hash[0]] = hash[1] || true
+  }
+
+  // default: state is `'open'`
+  if (typeof vars['state'] === 'undefined') {
+    vars['state'] = 'open'
+  }
+  // default: limit is `'1'`
+  if (typeof vars['limit'] === 'undefined') {
+    vars['limit'] = '1'
+  }
+  // default: random is `'false'`
+  if (typeof vars['random'] !== 'undefined') {
+    vars['random'] = true
+  }
+
+  return vars
+}
+
+function loadJSONP(path, callbackName) {
+  const
+    head = document.getElementsByTagName('head')[0],
+    el = document.createElement('script')
+
+  el.src = `${path}&callback=${callbackName}`
+
+  head.insertBefore(el, head.firstChild)
+}
+
+function shuffle(array) {
+  let
+    m = array,
+    t,
+    i
+
+  while (m) {
+    i = Math.floor(Math.random() * m--)
+    t = array[m]
+    array[m] = array[i]
+    array[i] = t
+  }
+
+  return array
+}
+
+function APICallback(results) {
+  const
+    content = document.getElementById('js-main-content'),
+    resultDataList = params['random'] ? shuffle(results.data) : results.data,
+    ul = document.createElement('ul'),
+    paramLimit = parseInt(params['limit'], 10),
+    limit = Math.min(paramLimit, resultDataList.length)
+
+  for (let i = 0; i < limit; i++) {
+    const
+      issue = resultDataList[i],
+      li = document.createElement('li'),
+      a = document.createElement('a')
+
+    a.href = issue.html_url
+    a.textContent = issue.title
+    a.setAttribute('target', '_blank')
+    li.appendChild(a)
+    ul.appendChild(li)
+  }
+
+  content.appendChild(ul)
+}
+
+(function main() {
+  // https://developer.github.com/v3/issues/#list-issues-for-a-repository
+  const APIQueryKeyList = [
+    'milestone',
+    'state',
+    'assignee',
+    'creator',
+    'mentioned',
+    'labels',
+    'sort',
+    'direction',
+    'since',
+  ]
+
+  const isAPPIQueryKey = (key) => {
+    return APIQueryKeyList.indexOf(key) !== -1
+  }
+
+  // key=value
+  const APIQuery = Object.keys(params)
+    .filter(isAPPIQueryKey)
+    .map((key) => { `${key}=${params[key]}` })
+
+  const APIEndPoint = `https://api.github.com/repos/${params.owner}/${params.repo}/issues?${APIQuery.join('&')}`
+  loadJSONP(APIEndPoint, 'APICallback')
+})()</script><style>body{overflow:hidden;background-color:transparent}body,ul{padding:0;margin:0}ul{list-style:none;line-height:2}li{background-image:url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAcCAYAAAAAwr0iAAABfElEQVRIic1X242EMAwc2zRADdRBGTRBDfmnEnqgj22CCvhC2vu4GDk+dglcVuxIEUg4yXj8SADeo4rjyKY4/KIVgAZAa0b9KSLbQiLSMfNIRLOIPO1g5oWIHgBCJFeUSEtED7fh6of7NpQiEayXdqO9wcyLvkdFVI1TJCoAYObBeLTou4hMAHrE+MfQDFYlY7+cJaFGvfeamUf8jW+yqIh0miNKgojmswo0Np4i8oweWwSTfDPSKqhVDaPE6Bx8DRGZ7GT8ZnbisYbHyFwbGyUxOyfaHBKNnRTjbSfpM5hk8wqoTXtFheC896xzCGx2quYbuxRuwmPH5CyB7sChFK6U9iTLJaBoXB5oMu8TcGU37BgnBJh5PSBQ2+aENKGvE3BVsBYjYA+agxD0MVxTrJQyIchIwlxcS0Icl6GiZeYhhinsfL9WhshsRDYHItFijSirFeN1Gf67FW8q3HUYfcVxfOuFxOOWK1miBG6+lH7FtfzWHxO/6Ed/zX4A3XEYsUuQztIAAAAASUVORK5CYII=');background-repeat:no-repeat;background-position:left top;padding-left:32px}</style></head><body><div id="js-main-content"></div></body></html>
