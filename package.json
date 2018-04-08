@@ -1,0 +1,26 @@
+{
+  "name": "clone-azu-github-issue-widget",
+  "version": "1.0.0",
+  "description": "Clone [azu/github-issue-widget: Showcase your Github(repository)'s issue list via iframe.](https://github.com/azu/github-issue-widget) for study",
+  "main": "index.js",
+  "scripts": {
+    "build": "gulp build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/yinm/clone-azu-github-issue-widget.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/yinm/clone-azu-github-issue-widget/issues"
+  },
+  "homepage": "https://github.com/yinm/clone-azu-github-issue-widget#readme",
+  "devDependencies": {
+    "gulp": "^3.8.7",
+    "gulp-htmlmin": "^0.2.0",
+    "gulp-inline-source": "0.0.2",
+    "inline-source": "^1.0.0"
+  }
+}
