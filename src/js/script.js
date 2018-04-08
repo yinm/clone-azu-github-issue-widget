@@ -1,7 +1,9 @@
 'use strict'
 
-const params = function() {
-  let vars = [], hash
+const params = (() => {
+  let vars = []
+  let hash
+
   const hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&')
 
   for (let i = 0, length = hashes.length; i < length; i++) {
@@ -11,37 +13,32 @@ const params = function() {
     vars[hash[0]] = hash[1] || true
   }
 
-  // default: state is `'open'`
   if (typeof vars['state'] === 'undefined') {
     vars['state'] = 'open'
   }
-  // default: limit is `'1'`
-  if (typeof vars['limit'] === 'undefined') {
+
+  if (typeof vars['random'] === 'undefined') {
     vars['limit'] = '1'
   }
-  // default: random is `'false'`
+
   if (typeof vars['random'] !== 'undefined') {
     vars['random'] = true
   }
 
   return vars
-}()
+})()
 
 function loadJSONP(path, callbackName) {
-  const
-    head = document.getElementsByTagName('head')[0],
-    el = document.createElement('script')
-
-  el.src = `${path}&callback=${callbackName}`
-
-  head.insertBefore(el, head.firstChild)
+  const head = document.getElementsByTagName('head')[0]
+  const element = document.createElement('script')
+  element.src = `${path}&callback=${callbackName}`
+  head.insertBefore(element, head.firstChild)
 }
 
 function shuffle(array) {
-  let
-    m = array,
-    t,
-    i
+  let m = array.length
+  let t
+  let i
 
   while (m) {
     i = Math.floor(Math.random() * m--)
@@ -54,19 +51,15 @@ function shuffle(array) {
 }
 
 function APICallback(results) {
-  const
-    content = document.getElementById('js-main-content'),
-    resultDataList = params['random'] ? shuffle(results.data) : results.data,
-    ul = document.createElement('ul'),
-    paramLimit = parseInt(params['limit'], 10),
-    limit = Math.min(paramLimit, resultDataList.length)
-
+  const content = document.getElementById('js-main-content')
+  const resultDataList = params['random'] ? shuffle(results.data) : results.data
+  const ul = document.createElement('ul')
+  const paramLimit = parseInt(params['limit'], 10)
+  const limit = Math.min(paramLimit, resultDataList.length)
   for (let i = 0; i < limit; i++) {
-    const
-      issue = resultDataList[i],
-      li = document.createElement('li'),
-      a = document.createElement('a')
-
+    const issue = resultDataList[i]
+    const li = document.createElement('li')
+    const a = document.createElement('a')
     a.href = issue.html_url
     a.textContent = issue.title
     a.setAttribute('target', '_blank')
@@ -78,7 +71,6 @@ function APICallback(results) {
 }
 
 (function main() {
-  // https://developer.github.com/v3/issues/#list-issues-for-a-repository
   const APIQueryKeyList = [
     'milestone',
     'state',
@@ -91,15 +83,16 @@ function APICallback(results) {
     'since',
   ]
 
-  const isAPPIQueryKey = (key) => {
+  const isAPIQueryKey = (key) => {
     return APIQueryKeyList.indexOf(key) !== -1
   }
 
   // key=value
   const APIQuery = Object.keys(params)
-    .filter(isAPPIQueryKey)
+    .filter(isAPIQueryKey)
     .map((key) => { `${key}=${params[key]}` })
 
+  // /repos/:owner/:repo/issues
   const APIEndPoint = `https://api.github.com/repos/${params.owner}/${params.repo}/issues?${APIQuery.join('&')}`
   loadJSONP(APIEndPoint, 'APICallback')
 })()
