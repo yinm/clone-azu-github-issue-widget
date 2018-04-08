@@ -1,1 +1,1 @@
-# clone-azu-github-issue-widget
+Clone [azu/github-issue-widget: Showcase your Github(repository)'s issue list via iframe.](https://github.com/azu/github-issue-widget) for study
